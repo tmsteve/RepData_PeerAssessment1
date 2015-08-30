@@ -14,6 +14,7 @@ library(data.table)
 
 unzip(zipfile = 'activity.zip')
 dt_activity <- data.table(read.csv('activity.csv'))
+dt_activity_Complete <- dt_activity[complete.cases(dt_activity), ]
 ```
 
 ## What is mean total number of steps taken per day?
@@ -26,6 +27,10 @@ dt_activity <- data.table(read.csv('activity.csv'))
 
 
 ```r
+Tot_Steps <- aggregate(dt_activity_Complete$steps, list(dt_activity_Complete$date), FUN = sum)
+
+names(Tot_Steps) <- c('Date', 'Steps')
+
 library(ggplot2)
 ```
 
@@ -34,36 +39,37 @@ library(ggplot2)
 ```
 
 ```r
-Tot_Steps <- tapply(dt_activity$steps, dt_activity$date, FUN = sum, na.rm = TRUE)
-
-qplot(Tot_Steps, binwidth = 1, xlab = 'Total number of steps taken per day', main = 'Activity') + geom_histogram(colour = 'Red', fill = 'Red')
+qplot(Tot_Steps$Steps, binwidth = 1,
+      xlab = 'Total number of steps taken per day',
+      main = 'Activity') +
+      geom_histogram(colour = 'Purple', fill = 'Purple')
 ```
 
 ```
 ## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-1-1.png) 
+![](PA1_template_files/figure-html/Part2-1.png) 
 
 ```r
-mean(Tot_Steps, na.rm = TRUE)
+mean(Tot_Steps$Steps)
 ```
 
 ```
-## [1] 9354.23
+## [1] 10766.19
 ```
 
 ```r
-median(Tot_Steps, na.rm = TRUE)
+median(Tot_Steps$Steps)
 ```
 
 ```
-## [1] 10395
+## [1] 10765
 ```
 
-The **Mean** number of steps per day is **9354.23**.
+The **Mean** number of steps per day is **10,766.19**.
 
-The **Median** number of steps per day is **10,395**.
+The **Median** number of steps per day is **10,765**.
 
 ## What is the average daily activity pattern?
 
@@ -71,14 +77,17 @@ The **Median** number of steps per day is **10,395**.
 
 
 ```r
-library(ggplot2)
-
 Avg_Steps <- aggregate(x = list(steps = dt_activity$steps), by = list(interval = dt_activity$interval), FUN = mean, na.rm = TRUE)
 
-ggplot(data = Avg_Steps, aes(x = interval, y = steps)) +geom_line(color = 'Red', lwd = 1) + xlab('5-minute interval') + ylab('Average number of steps taken') + labs(title = expression('Activity'))
+ggplot(data = Avg_Steps,
+       aes(x = interval, y = steps)) +
+       geom_line(color = 'Purple', lwd = 1) +
+       xlab('5-minute interval') +
+       ylab('Average number of steps taken') + 
+       labs(title = 'Activity')
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-2-1.png) 
+![](PA1_template_files/figure-html/Part3-1.png) 
 
 On average across all the days in the dataset, which 5-minute interval contains the maximum number of steps?
 
@@ -121,6 +130,7 @@ table(NA_missing)
 # Replace each missing value with the mean value of its 5-minute interval
 NA_Value <- function(steps, interval) {
     fill_val <- NA
+
     if (!is.na(steps))
         fill_val <- c(steps)
     else
@@ -195,14 +205,17 @@ head(dt_activity_filled, 50L)
 ```r
 Tot_Steps <- tapply(dt_activity_filled$steps, dt_activity_filled$date, FUN = sum)
 
-qplot(Tot_Steps, binwidth = 1, xlab = 'Total number of steps taken each day', main = 'Activity') + geom_histogram(colour = 'Red', fill = 'Red')
+qplot(Tot_Steps, binwidth = 1,
+      xlab = 'Total number of steps taken each day',
+      main = 'Activity') +
+      geom_histogram(colour = 'Purple', fill = 'Purple')
 ```
 
 ```
 ## stat_bin: binwidth defaulted to range/30. Use 'binwidth = x' to adjust this.
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-5-1.png) 
+![](PA1_template_files/figure-html/Part7-1.png) 
 
 ```r
 mean(Tot_Steps)
@@ -234,12 +247,13 @@ The **Median** number of steps per day is **10766.19**.
 ```r
 WkDayWkEnd <- function(date) {
     day <- weekdays(date)
+
     if (day %in% c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'))
-        return('weekday')
+       return('weekday')
     else if (day %in% c('Saturday', 'Sunday'))
-        return('weekend')
+       return('weekend')
     else
-        stop('invalid date')
+       stop('invalid date')
 }
 
 dt_activity_filled$date <- as.Date(dt_activity_filled$date)
@@ -252,8 +266,13 @@ dt_activity_filled$day <- sapply(dt_activity_filled$date, FUN = WkDayWkEnd)
 ```r
 Avg_Steps <- aggregate(steps ~ interval + day, data = dt_activity_filled, mean)
 
-ggplot(Avg_Steps, aes(interval, steps)) + geom_line(color = 'Red', lwd = 1) + facet_grid(day ~ .) +
-    xlab('5-minute interval') + ylab('Number of steps') + labs(title = expression('Activity'))
+ggplot(Avg_Steps,
+       aes(x = interval, y = steps)) +
+       geom_line(color = 'Purple', lwd = 1) +
+       facet_grid(day ~ .) +
+       xlab('5-minute interval') +
+       ylab('Number of steps') +
+       labs(title = 'Activity')
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-7-1.png) 
+![](PA1_template_files/figure-html/Part9-1.png) 

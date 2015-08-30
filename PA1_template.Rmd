@@ -13,11 +13,12 @@ output:
 >
 > Process/transform the data (if necessary) into a format suitable for your analysis
 
-```{r loaddata}
+```{r Part1}
 library(data.table)
 
 unzip(zipfile = 'activity.zip')
 dt_activity <- data.table(read.csv('activity.csv'))
+dt_activity_Complete <- dt_activity[complete.cases(dt_activity), ]
 ```
 
 ## What is mean total number of steps taken per day?
@@ -28,36 +29,44 @@ dt_activity <- data.table(read.csv('activity.csv'))
 > 
 > If you do not understand the difference between a histogram and a barplot, research the difference between them. Make a histogram of the total number of steps taken each day
 
-```{r}
+```{r Part2}
+Tot_Steps <- aggregate(dt_activity_Complete$steps, list(dt_activity_Complete$date), FUN = sum)
+
+names(Tot_Steps) <- c('Date', 'Steps')
+
 library(ggplot2)
 
-Tot_Steps <- tapply(dt_activity$steps, dt_activity$date, FUN = sum, na.rm = TRUE)
+qplot(Tot_Steps$Steps, binwidth = 1,
+      xlab = 'Total number of steps taken per day',
+      main = 'Activity') +
+      geom_histogram(colour = 'Purple', fill = 'Purple')
 
-qplot(Tot_Steps, binwidth = 1, xlab = 'Total number of steps taken per day', main = 'Activity') + geom_histogram(colour = 'Red', fill = 'Red')
-
-mean(Tot_Steps, na.rm = TRUE)
-median(Tot_Steps, na.rm = TRUE)
+mean(Tot_Steps$Steps)
+median(Tot_Steps$Steps)
 ```
 
-The **Mean** number of steps per day is **9354.23**.
+The **Mean** number of steps per day is **10,766.19**.
 
-The **Median** number of steps per day is **10,395**.
+The **Median** number of steps per day is **10,765**.
 
 ## What is the average daily activity pattern?
 
 > Make a time series plot (i.e. type = 'l') of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 
-```{r}
-library(ggplot2)
-
+```{r Part3}
 Avg_Steps <- aggregate(x = list(steps = dt_activity$steps), by = list(interval = dt_activity$interval), FUN = mean, na.rm = TRUE)
 
-ggplot(data = Avg_Steps, aes(x = interval, y = steps)) +geom_line(color = 'Red', lwd = 1) + xlab('5-minute interval') + ylab('Average number of steps taken') + labs(title = expression('Activity'))
+ggplot(data = Avg_Steps,
+       aes(x = interval, y = steps)) +
+       geom_line(color = 'Purple', lwd = 1) +
+       xlab('5-minute interval') +
+       ylab('Average number of steps taken') + 
+       labs(title = 'Activity')
 ```
 
 On average across all the days in the dataset, which 5-minute interval contains the maximum number of steps?
 
-```{r}
+```{r Part4}
 Avg_Steps[which.max(Avg_Steps$steps), ]
 ```
 
@@ -69,7 +78,7 @@ The maximum average number of steps is **206.1698**.
 
 > Devise a strategy for filling in all of the missing values in the dataset. The strategy does not need to be sophisticated. For example, you could use the mean/median for that day, or the mean for that 5-minute interval, etc.
 
-```{r Missing_data}
+```{r Part5}
 NA_missing <- is.na(dt_activity$steps)
 
 # No. of NAs missing
@@ -78,10 +87,11 @@ table(NA_missing)
 
 > Create a new dataset that is equal to the original dataset but with the missing data filled in.
 
-```{r}
+```{r Part6}
 # Replace each missing value with the mean value of its 5-minute interval
 NA_Value <- function(steps, interval) {
     fill_val <- NA
+
     if (!is.na(steps))
         fill_val <- c(steps)
     else
@@ -97,10 +107,13 @@ head(dt_activity_filled, 50L)
 
 > Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day.
 
-```{r}
+```{r Part7}
 Tot_Steps <- tapply(dt_activity_filled$steps, dt_activity_filled$date, FUN = sum)
 
-qplot(Tot_Steps, binwidth = 1, xlab = 'Total number of steps taken each day', main = 'Activity') + geom_histogram(colour = 'Red', fill = 'Red')
+qplot(Tot_Steps, binwidth = 1,
+      xlab = 'Total number of steps taken each day',
+      main = 'Activity') +
+      geom_histogram(colour = 'Purple', fill = 'Purple')
 
 mean(Tot_Steps)
 median(Tot_Steps)
@@ -116,15 +129,16 @@ The **Median** number of steps per day is **10766.19**.
 >
 > Create a new factor variable in the dataset with two levels - 'weekday' and 'weekend' indicating whether a given date is a weekday or weekend day.
 
-```{r}
+```{r Part8}
 WkDayWkEnd <- function(date) {
     day <- weekdays(date)
+
     if (day %in% c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'))
-        return('weekday')
+       return('weekday')
     else if (day %in% c('Saturday', 'Sunday'))
-        return('weekend')
+       return('weekend')
     else
-        stop('invalid date')
+       stop('invalid date')
 }
 
 dt_activity_filled$date <- as.Date(dt_activity_filled$date)
@@ -133,9 +147,14 @@ dt_activity_filled$day <- sapply(dt_activity_filled$date, FUN = WkDayWkEnd)
 
 > Make a panel plot containing a time series plot (i.e. type = 'l') of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
 
-```{r}
+```{r Part9}
 Avg_Steps <- aggregate(steps ~ interval + day, data = dt_activity_filled, mean)
 
-ggplot(Avg_Steps, aes(interval, steps)) + geom_line(color = 'Red', lwd = 1) + facet_grid(day ~ .) +
-    xlab('5-minute interval') + ylab('Number of steps') + labs(title = expression('Activity'))
+ggplot(Avg_Steps,
+       aes(x = interval, y = steps)) +
+       geom_line(color = 'Purple', lwd = 1) +
+       facet_grid(day ~ .) +
+       xlab('5-minute interval') +
+       ylab('Number of steps') +
+       labs(title = 'Activity')
 ```
