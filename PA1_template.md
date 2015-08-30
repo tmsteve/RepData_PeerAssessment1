@@ -111,14 +111,14 @@ The maximum average number of steps is **206.1698**.
 
 
 ```r
-NA_missing <- is.na(dt_activity$steps)
+NAs_Missing <- is.na(dt_activity$steps)
 
 # No. of NAs missing
-table(NA_missing)
+table(NAs_Missing)
 ```
 
 ```
-## NA_missing
+## NAs_Missing
 ## FALSE  TRUE 
 ## 15264  2304
 ```
@@ -138,10 +138,10 @@ NA_Value <- function(steps, interval) {
     return(fill_val)
 }
 
-dt_activity_filled <- dt_activity
-dt_activity_filled$steps <- mapply(NA_Value, dt_activity_filled$steps, dt_activity_filled$interval)
+dt_activity_Filled <- dt_activity
+dt_activity_Filled$steps <- mapply(NA_Value, dt_activity_Filled$steps, dt_activity_Filled$interval)
 
-head(dt_activity_filled, 50L)
+head(dt_activity_Filled, 50L)
 ```
 
 ```
@@ -203,10 +203,22 @@ head(dt_activity_filled, 50L)
 
 
 ```r
-Tot_Steps <- tapply(dt_activity_filled$steps, dt_activity_filled$date, FUN = sum)
+#Tot_Steps <- tapply(dt_activity_filled$steps, #dt_activity_filled$date, FUN = sum)
 
-qplot(Tot_Steps, binwidth = 1,
-      xlab = 'Total number of steps taken each day',
+#qplot(Tot_Steps, binwidth = 1,
+#      xlab = 'Total number of steps taken each day',
+#      main = 'Activity') +
+#      geom_histogram(colour = 'Purple', fill = 'Purple')
+
+#mean(Tot_Steps)
+#median(Tot_Steps)
+
+Tot_Steps <- aggregate(dt_activity_Filled$steps, list(dt_activity_Filled$date), FUN = sum)
+
+names(Tot_Steps) <- c('Date', 'Steps')
+
+qplot(Tot_Steps$Steps, binwidth = 1,
+      xlab = 'Total number of steps taken per day',
       main = 'Activity') +
       geom_histogram(colour = 'Purple', fill = 'Purple')
 ```
@@ -218,7 +230,7 @@ qplot(Tot_Steps, binwidth = 1,
 ![](PA1_template_files/figure-html/Part7-1.png) 
 
 ```r
-mean(Tot_Steps)
+mean(Tot_Steps$Steps)
 ```
 
 ```
@@ -226,7 +238,7 @@ mean(Tot_Steps)
 ```
 
 ```r
-median(Tot_Steps)
+median(Tot_Steps$Steps)
 ```
 
 ```
@@ -256,15 +268,15 @@ WkDayWkEnd <- function(date) {
        stop('invalid date')
 }
 
-dt_activity_filled$date <- as.Date(dt_activity_filled$date)
-dt_activity_filled$day <- sapply(dt_activity_filled$date, FUN = WkDayWkEnd)
+dt_activity_Filled$date <- as.Date(dt_activity_Filled$date)
+dt_activity_Filled$day <- sapply(dt_activity_Filled$date, FUN = WkDayWkEnd)
 ```
 
 > Make a panel plot containing a time series plot (i.e. type = 'l') of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
 
 
 ```r
-Avg_Steps <- aggregate(steps ~ interval + day, data = dt_activity_filled, mean)
+Avg_Steps <- aggregate(steps ~ interval + day, data = dt_activity_Filled, mean)
 
 ggplot(Avg_Steps,
        aes(x = interval, y = steps)) +
