@@ -203,16 +203,6 @@ head(dt_activity_Filled, 50L)
 
 
 ```r
-#Tot_Steps <- tapply(dt_activity_filled$steps, #dt_activity_filled$date, FUN = sum)
-
-#qplot(Tot_Steps, binwidth = 1,
-#      xlab = 'Total number of steps taken each day',
-#      main = 'Activity') +
-#      geom_histogram(colour = 'Purple', fill = 'Purple')
-
-#mean(Tot_Steps)
-#median(Tot_Steps)
-
 Tot_Steps <- aggregate(dt_activity_Filled$steps, list(dt_activity_Filled$date), FUN = sum)
 
 names(Tot_Steps) <- c('Date', 'Steps')

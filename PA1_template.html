@@ -209,17 +209,7 @@ head(dt_activity_Filled, 50L)</code></pre>
 <blockquote>
 <p>Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day.</p>
 </blockquote>
-<pre class="r"><code>#Tot_Steps &lt;- tapply(dt_activity_filled$steps, #dt_activity_filled$date, FUN = sum)
-
-#qplot(Tot_Steps, binwidth = 1,
-#      xlab = 'Total number of steps taken each day',
-#      main = 'Activity') +
-#      geom_histogram(colour = 'Purple', fill = 'Purple')
-
-#mean(Tot_Steps)
-#median(Tot_Steps)
-
-Tot_Steps &lt;- aggregate(dt_activity_Filled$steps, list(dt_activity_Filled$date), FUN = sum)
+<pre class="r"><code>Tot_Steps &lt;- aggregate(dt_activity_Filled$steps, list(dt_activity_Filled$date), FUN = sum)
 
 names(Tot_Steps) &lt;- c('Date', 'Steps')
 
