@@ -46,8 +46,8 @@ library(ggplot2)
 
 ```r
 qplot(Tot_Steps$Steps, binwidth = 1,
-      xlab = 'Total number of steps taken per day',
-      main = 'Activity') +
+      main = 'Activity',
+      xlab = 'Total number of steps taken per day') +
       geom_histogram(colour = 'Purple', fill = 'Purple')
 ```
 
@@ -87,10 +87,10 @@ Avg_Steps <- aggregate(x = list(steps = dt_activity$steps), by = list(interval =
 
 ggplot(data = Avg_Steps,
        aes(x = interval, y = steps)) +
-       geom_line(color = 'Purple', lwd = 1) +
+       ggtitle('Activity') +
        xlab('5-minute interval') +
-       ylab('Average number of steps taken') + 
-       labs(title = 'Activity')
+       ylab('Average number of steps taken') +
+       geom_line(color = 'Purple', lwd = 1)
 ```
 
 ![](PA1_template_files/figure-html/Part3-1.png) 
@@ -214,8 +214,8 @@ Tot_Steps <- aggregate(x = dt_activity_Filled$steps, by = list(dt_activity_Fille
 names(Tot_Steps) <- c('Date', 'Steps')
 
 qplot(Tot_Steps$Steps, binwidth = 1,
-      xlab = 'Total number of steps taken per day',
-      main = 'Activity') +
+      main = 'Activity',
+      xlab = 'Total number of steps taken per day') +
       geom_histogram(colour = 'Purple', fill = 'Purple')
 ```
 
@@ -276,11 +276,11 @@ Avg_Steps <- aggregate(formula = steps ~ interval + day, data = dt_activity_Fill
 
 ggplot(Avg_Steps,
        aes(x = interval, y = steps)) +
-       geom_line(color = 'Purple', lwd = 1) +
-       facet_grid(day ~ .) +
+       ggtitle('Activity') +
        xlab('5 minute intervals') +
        ylab('Average number of steps taken') +
-       labs(title = 'Activity')
+       facet_grid(day ~ .) +
+       geom_line(color = 'Purple', lwd = 1)
 ```
 
 ![](PA1_template_files/figure-html/Part9-1.png) 
