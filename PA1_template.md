@@ -12,8 +12,14 @@
 ```r
 library(data.table)
 
-unzip(zipfile = 'activity.zip')
+if(!file.exists('activity.csv')) {
+   unzip(zipfile = 'activity.zip')
+}
+
+# Read the CSV file
 dt_activity <- data.table(read.csv('activity.csv'))
+
+# Strip off NA data
 dt_activity_Complete <- dt_activity[complete.cases(dt_activity), ]
 ```
 
@@ -27,7 +33,7 @@ dt_activity_Complete <- dt_activity[complete.cases(dt_activity), ]
 
 
 ```r
-Tot_Steps <- aggregate(dt_activity_Complete$steps, list(dt_activity_Complete$date), FUN = sum)
+Tot_Steps <- aggregate(x = dt_activity_Complete$steps, by = list(dt_activity_Complete$date), FUN = sum)
 
 names(Tot_Steps) <- c('Date', 'Steps')
 
@@ -139,7 +145,7 @@ NA_Value <- function(steps, interval) {
 }
 
 dt_activity_Filled <- dt_activity
-dt_activity_Filled$steps <- mapply(NA_Value, dt_activity_Filled$steps, dt_activity_Filled$interval)
+dt_activity_Filled$steps <- mapply(FUN = NA_Value, dt_activity_Filled$steps, dt_activity_Filled$interval)
 
 head(dt_activity_Filled, 50L)
 ```
@@ -203,7 +209,7 @@ head(dt_activity_Filled, 50L)
 
 
 ```r
-Tot_Steps <- aggregate(dt_activity_Filled$steps, list(dt_activity_Filled$date), FUN = sum)
+Tot_Steps <- aggregate(x = dt_activity_Filled$steps, by = list(dt_activity_Filled$date), FUN = sum)
 
 names(Tot_Steps) <- c('Date', 'Steps')
 
@@ -259,21 +265,21 @@ WkDayWkEnd <- function(date) {
 }
 
 dt_activity_Filled$date <- as.Date(dt_activity_Filled$date)
-dt_activity_Filled$day <- sapply(dt_activity_Filled$date, FUN = WkDayWkEnd)
+dt_activity_Filled$day <- sapply(X = dt_activity_Filled$date, FUN = WkDayWkEnd)
 ```
 
 > Make a panel plot containing a time series plot (i.e. type = 'l') of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
 
 
 ```r
-Avg_Steps <- aggregate(steps ~ interval + day, data = dt_activity_Filled, mean)
+Avg_Steps <- aggregate(formula = steps ~ interval + day, data = dt_activity_Filled, FUN = mean)
 
 ggplot(Avg_Steps,
        aes(x = interval, y = steps)) +
        geom_line(color = 'Purple', lwd = 1) +
        facet_grid(day ~ .) +
-       xlab('5-minute interval') +
-       ylab('Number of steps') +
+       xlab('5 minute intervals') +
+       ylab('Average number of steps taken') +
        labs(title = 'Activity')
 ```
 
